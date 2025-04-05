@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder; // Add this import
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,7 +70,6 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
     }
 
-
     public User updateUser(Long id, RegisterDTO registerDTO) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
@@ -83,6 +83,7 @@ public class AuthService {
         // Save the updated user
         return userRepository.save(existingUser);
     }
+
     public void deleteUser(Long id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
@@ -90,5 +91,18 @@ public class AuthService {
         userRepository.delete(existingUser);
     }
 
+    // Get the current authenticated user
+    public User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+    }
 }

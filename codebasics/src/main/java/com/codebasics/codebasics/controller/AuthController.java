@@ -50,4 +50,10 @@ public class AuthController {
     public void deleteUser(@PathVariable Long id) {
         authService.deleteUser(id);
     }
+
+    //  Get current logged-in user
+@GetMapping("/me")
+public User getCurrentUser() {
+    return authService.getCurrentUser();
+}
 }
