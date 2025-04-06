@@ -5,7 +5,7 @@ import './userlearningplan.css';
 const MyLearningPlansPage = () => {
   const [myLearningPlans, setMyLearningPlans] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [userId, setUserId] = useState('1');
+  const [userId, setUserId] = useState('2');
   const [editingPlan, setEditingPlan] = useState(null);
   const [viewingPlan, setViewingPlan] = useState(null);
   const [editFormData, setEditFormData] = useState({
@@ -19,10 +19,20 @@ const MyLearningPlansPage = () => {
     milestone2: 'incomplete',
     milestone3: 'incomplete'
   });
+  const [alert, setAlert] = useState({ show: false, message: '', type: '' });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState(null);
 
   useEffect(() => {
     fetchLearningPlans();
   }, [userId]);
+
+  const showAlert = (message, type) => {
+    setAlert({ show: true, message, type });
+    setTimeout(() => {
+      setAlert({ ...alert, show: false });
+    }, 3000);
+  };
 
   const fetchLearningPlans = async () => {
     setIsLoading(true);
@@ -43,6 +53,7 @@ const MyLearningPlansPage = () => {
       setMyLearningPlans(transformedPlans);
     } catch (error) {
       console.error('Error fetching learning plans:', error);
+      showAlert('Failed to load learning plans', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -52,9 +63,11 @@ const MyLearningPlansPage = () => {
     e.stopPropagation();
     try {
       await axios.put(`http://localhost:8080/api/user-learning-plans/share/${planId}`);
+      showAlert('Plan shared successfully!', 'success');
       fetchLearningPlans();
     } catch (error) {
       console.error('Error sharing plan:', error);
+      showAlert('Failed to share plan', 'error');
     }
   };
 
@@ -64,6 +77,7 @@ const MyLearningPlansPage = () => {
       setViewingPlan(response.data);
     } catch (error) {
       console.error('Error fetching plan details:', error);
+      showAlert('Failed to load plan details', 'error');
     }
   };
 
@@ -77,14 +91,28 @@ const MyLearningPlansPage = () => {
 
   const handleDelete = async (planId, e) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this learning plan?')) {
+    setPlanToDelete(planId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (planToDelete) {
       try {
-        await axios.delete(`http://localhost:8080/api/user-learning-plans/${planId}`);
+        await axios.delete(`http://localhost:8080/api/user-learning-plans/${planToDelete}`);
+        showAlert('Plan deleted successfully!', 'success');
         fetchLearningPlans();
       } catch (error) {
         console.error('Error deleting learning plan:', error);
+        showAlert('Failed to delete plan', 'error');
       }
     }
+    setShowDeleteConfirm(false);
+    setPlanToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setPlanToDelete(null);
   };
 
   const handleEdit = (plan, e) => {
@@ -123,9 +151,11 @@ const MyLearningPlansPage = () => {
     try {
       await axios.put(`http://localhost:8080/api/user-learning-plans/${planId}`, editFormData);
       setEditingPlan(null);
+      showAlert('Plan updated successfully!', 'success');
       fetchLearningPlans();
     } catch (error) {
       console.error('Error updating learning plan:', error);
+      showAlert('Failed to update plan', 'error');
     }
   };
 
@@ -144,6 +174,38 @@ const MyLearningPlansPage = () => {
 
   return (
     <div className="learning-plan-container">
+      {/* Alert Notification */}
+      {alert.show && (
+        <div className={`alert alert-${alert.type}`}>
+          {alert.message}
+          <button 
+            className="alert-close" 
+            onClick={() => setAlert({ ...alert, show: false })}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="delete-confirm-overlay">
+          <div className="delete-confirm-modal">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this learning plan?</p>
+            <p className="warning-text">This action cannot be undone.</p>
+            <div className="delete-confirm-buttons">
+              <button onClick={cancelDelete} className="cancel-delete-btn">
+                Cancel
+              </button>
+              <button onClick={confirmDelete} className="confirm-delete-btn">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="my-learning-plans">
         <h2>My Learning Plans</h2>
         {isLoading ? (
@@ -203,9 +265,9 @@ const MyLearningPlansPage = () => {
                       />
                       
                       <div className="milestone-editor">
-                      <h4>Milestones:</h4>
-                      <h6>click milestone to change the status</h6>
-                      <div className="milestone-item">
+                        <h4>Milestones:</h4>
+                        <h6>click milestone to change the status</h6>
+                        <div className="milestone-item">
                           <label>Milestone 1:</label>
                           <button 
                             className={`milestone-toggle ${editFormData.milestone1}`}
