@@ -315,7 +315,7 @@ const MyLearningPlansPage = () => {
             )}
             
             <div className="modal-content">
-              <h2>{viewingPlan.planName}</h2>
+              <h3>{viewingPlan.planName}</h3>
               <div className="modal-meta">
                 <p><strong>Duration:</strong> {viewingPlan.duration}</p>
                 <p><strong>Skills:</strong> {viewingPlan.skills}</p>
@@ -323,7 +323,7 @@ const MyLearningPlansPage = () => {
                 <p><strong>Visibility:</strong> {viewingPlan.visibility || 'PRIVATE'}</p>
               </div>
               <div className="modal-description">
-                <h3>Description</h3>
+                <h4>Description</h4>
                 <p>{viewingPlan.description}</p>
               </div>
               

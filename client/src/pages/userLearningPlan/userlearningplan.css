@@ -258,14 +258,16 @@
 
 .plan-modal {
   background-color: white;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 800px;
-  max-height: 90vh;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 80vh;
   overflow-y: auto;
   padding: 20px;
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-size: 10px; /* base font size for the modal */
+
 }
 
 .close-modal {
@@ -284,11 +286,11 @@
 }
 
 .modal-image-container {
-  width: 100%;
-  height: 300px;
+  width: 50%;
+  height: 150px;
   overflow: hidden;
   border-radius: 6px;
-  margin-bottom: 20px;
+  margin: 10px auto; 
 }
 
 .modal-image {
@@ -307,13 +309,18 @@
 }
 
 .modal-meta {
-  margin: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px; /* vertical and horizontal spacing */
+  margin: 7px 0;
 }
 
 .modal-meta p {
-  margin: 8px 0;
+  flex: 0 0 48%; /* makes each <p> take about half the row */
+  margin: 2px 0;
   color: #555;
 }
+
 
 .modal-description {
   margin-top: 25px;
